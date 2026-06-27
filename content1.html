@@ -1,7 +1,170 @@
-<html>
-  <body>
-    <p>
-      123
-    </p>
-  </body>
-</html>
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>7000元居家備糧聰明規劃器</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+        .scroll-custom::-webkit-scrollbar {
+            width: 6px;
+        }
+        .scroll-custom::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .scroll-custom::-webkit-scrollbar-thumb {
+            background-color: rgba(156, 163, 175, 0.5);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen text-gray-800 flex flex-col">
+
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col sm:flex-row justify-between items-center gap-3">
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-blue-50 text-blue-600 rounded-xl">
+                    <span class="material-icons text-2xl">local_grocery_store</span>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-gray-900">7,000元 居家備糧聰明規劃器</h1>
+                    <p class="text-xs text-gray-500">專為二大二小、10天停電/緊急情境設計的黃金採購單</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="resetToDefault()" class="text-xs text-gray-500 hover:text-blue-600 border border-gray-200 px-3 py-1.5 rounded-lg bg-white flex items-center gap-1 transition-all">
+                    <span class="material-icons text-sm">restart_alt</span> 重設預設值
+                </button>
+                <button onclick="printChecklist()" class="text-xs text-white bg-blue-600 hover:bg-blue-700 px-3 py-1.5 rounded-lg flex items-center gap-1 font-medium transition-all shadow-sm">
+                    <span class="material-icons text-sm">assignment_turned_in</span> 產生採購清單
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-6 flex-grow grid grid-cols-1 lg:grid-cols-12 gap-6 w-full">
+        
+        <!-- Left Side: Dashboard Stats -->
+        <div class="lg:col-span-4 flex flex-col gap-6">
+            
+            <!-- Real-time Budget Progress Card -->
+            <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm">
+                <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">預算消耗進度</h2>
+                <div class="flex items-baseline gap-2 mb-2">
+                    <span class="text-3xl font-bold text-gray-900" id="total-cost">NT$ 0</span>
+                    <span class="text-gray-400 text-sm">/ NT$ 7,000</span>
+                </div>
+                
+                <!-- Progress bar -->
+                <div class="w-full bg-gray-100 h-2.5 rounded-full overflow-hidden mb-4">
+                    <div id="budget-progress" class="bg-blue-600 h-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+
+                <!-- Warnings/Status feedback -->
+                <div id="budget-status" class="p-3 rounded-xl text-xs flex items-center gap-2 font-medium">
+                    <!-- Dynamic status text -->
+                </div>
+            </div>
+
+            <!-- Survival Metrics Dashboard -->
+            <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex flex-col gap-4">
+                <h2 class="text-sm font-semibold text-gray-900 mb-2">戰備存量安全評估 (10天/4人)</h2>
+                
+                <!-- Calorie Indicator -->
+                <div>
+                    <div class="flex justify-between text-xs mb-1">
+                        <span class="text-gray-500 font-medium flex items-center gap-1">
+                            <span class="material-icons text-amber-500 text-sm">local_fire_department</span>
+                            總熱量安全度
+                        </span>
+                        <span class="font-bold text-gray-900" id="calories-pct">0%</span>
+                    </div>
+                    <div class="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
+                        <div id="calories-progress" class="bg-amber-500 h-full transition-all" style="width: 0%"></div>
+                    </div>
+                    <p class="text-[10px] text-gray-400 mt-1" id="calories-desc">建議目標：約 72,000 kcal 最安全</p>
+                </div>
+
+                <!-- Protein Indicator -->
+                <div>
+                    <div class="flex justify-between text-xs mb-1">
+                        <span class="text-gray-500 font-medium flex items-center gap-1">
+                            <span class="material-icons text-emerald-500 text-sm">fitness_center</span>
+                            蛋白質供給度
+                        </span>
+                        <span class="font-bold text-gray-900" id="protein-pct">0%</span>
+                    </div>
+                    <div class="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
+                        <div id="protein-progress" class="bg-emerald-500 h-full transition-all" style="width: 0%"></div>
+                    </div>
+                    <p class="text-[10px] text-gray-400 mt-1" id="protein-desc">維持體力與飽足感的關鍵</p>
+                </div>
+
+                <!-- Water Cooking Indicator -->
+                <div>
+                    <div class="flex justify-between text-xs mb-1">
+                        <span class="text-gray-500 font-medium flex items-center gap-1">
+                            <span class="material-icons text-blue-500 text-sm">opacity</span>
+                            烹飪省水指數
+                        </span>
+                        <span class="font-bold text-gray-900" id="water-cooking-status">優良</span>
+                    </div>
+                    <p class="text-[10px] text-gray-400 mt-1">優先選用免水煮、或水能重複利用的主食。</p>
+                </div>
+            </div>
+
+            <!-- Smart Tactics Insights -->
+            <div class="bg-blue-50 p-5 rounded-2xl border border-blue-100 shadow-sm text-xs">
+                <h3 class="font-bold text-blue-900 mb-2 flex items-center gap-1">
+                    <span class="material-icons text-sm">lightbulb</span> 2026 戰術採購建議
+                </h3>
+                <ul class="space-y-2 text-blue-800 list-disc list-inside">
+                    <li><strong class="text-blue-950">別買高水消耗品：</strong> 泡麵雖然方便，但煮麵水在斷水時是奢侈品。建議一半替換為無需用水的蘇打餅乾與燕麥。</li>
+                    <li><strong class="text-blue-950">善用高能量抹醬：</strong> 花生醬便宜且保存期極長，一匙就能提供 100 大卡與豐富油脂，安撫飢餓感最強。</li>
+                    <li><strong class="text-blue-950">水產與肉罐頭：</strong> 青葉嚕肉飯罐頭、愛之味土豆麵筋、海底雞，可以直接配白飯或拌麵，無須額外調味。</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Right Side: Interactive Category Filters & Item List -->
+        <div class="lg:col-span-8 bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex flex-col min-h-[500px]">
+            
+            <!-- Category Filters -->
+            <div class="flex gap-2 overflow-x-auto pb-3 border-b border-gray-100 scroll-custom">
+                <button onclick="filterCategory('all')" class="category-btn px-4 py-1.5 rounded-full text-xs font-semibold bg-gray-900 text-white transition-all shadow-sm flex items-center gap-1" id="btn-all">
+                    全部物資
+                </button>
+                <button onclick="filterCategory('carbs')" class="category-btn px-4 py-1.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all flex items-center gap-1" id="btn-carbs">
+                    🌾 優質碳水
+                </button>
+                <button onclick="filterCategory('protein')" class="category-btn px-4 py-1.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all flex items-center gap-1" id="btn-protein">
+                    🥩 核心蛋白
+                </button>
+                <button onclick="filterCategory('micronutrients')" class="category-btn px-4 py-1.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all flex items-center gap-1" id="btn-micronutrients">
+                    🍅 維生素與微量
+                </button>
+                <button onclick="filterCategory('morale')" class="category-btn px-4 py-1.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all flex items-center gap-1" id="btn-morale">
+                    🍫 心靈慰藉
+                </button>
+            </div>
+
+            <!-- Interactive Item List -->
+            <div class="flex-grow overflow-y-auto max-h-[550px] pr-2 scroll-custom mt-4 space-y-3" id="items-container">
+                <!-- Dynamically generated items -->
+            </div>
+
+            <!-- Custom item adder -->
+            <div class="mt-4 pt-4 border-t border-gray-100 grid grid-cols-1 sm:grid-cols-12 gap-2">
+                <div class="sm:col-span-5">
+                    <input type="text" id="custom-name" placeholder="新增自訂備糧（例如：肉乾）" class="w-full text-xs px-3 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="sm:col-span-2">
+                    <input type="number" id="custom-price" placeholder="價格" class="w-full text-xs px-3 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="sm:col-span-2">
+                    <select id="custom-category" class="w-full text-xs px-3 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
